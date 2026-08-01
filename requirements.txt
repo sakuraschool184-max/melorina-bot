@@ -1,1 +1,2 @@
-pip install python-telegram-bot google-generativeai
+python-telegram-bot==20.7
+google-generativeai==0.8.3
