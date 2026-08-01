@@ -14,7 +14,7 @@ from config import TELEGRAM_TOKEN, GEMINI_API_KEY, BOT_NAME, CHANNELS
 from keyboards import main_menu
 
 
-# اتصال Gemini
+# Gemini
 genai.configure(
     api_key=GEMINI_API_KEY
 )
@@ -26,15 +26,13 @@ model = genai.GenerativeModel(
 
 PERSONALITY = """
 تو ملورینا هستی 🌸
-یک ربات کیوت و دوست داشتنی.
-مثل یک دوست صمیمی حرف بزن.
-از ایموجی استفاده کن.
-گاهی بگو وااای 🥺 یا چراااا 🌸
-جواب‌ها تکراری نباشند.
+یک ربات کیوت و صمیمی.
+با ایموجی حرف بزن.
+جواب‌ها خشک نباشند.
+گاهی بگو وااای 🥺 یا چراااا.
 """
 
 
-# لینک‌های کانال برای دکمه‌ها
 CHANNEL_LINKS = [
     "https://t.me/team_Yuri",
     "https://t.me/pinkii008",
@@ -44,7 +42,6 @@ CHANNEL_LINKS = [
 ]
 
 
-# بررسی عضویت
 async def check_channels(update, context):
 
     user_id = update.effective_user.id
@@ -54,41 +51,28 @@ async def check_channels(update, context):
     for channel in CHANNELS:
 
         try:
-
             member = await context.bot.get_chat_member(
                 chat_id=channel,
                 user_id=user_id
             )
 
-
-            if member.status in [
-                "left",
-                "kicked"
-            ]:
+            if member.status in ["left", "kicked"]:
                 not_joined.append(channel)
 
 
         except Exception as e:
-
-            print(
-                "CHANNEL ERROR:",
-                channel,
-                e
-            )
+            print("CHANNEL ERROR:", channel, e)
 
 
     if not_joined:
 
-
         buttons = []
 
-
         for i, link in enumerate(CHANNEL_LINKS, 1):
-
             buttons.append(
                 [
                     InlineKeyboardButton(
-                        f"①②③④⑤"[i-1] + " کانال 🌸",
+                        f"{i} کانال 🌸",
                         url=link
                     )
                 ]
@@ -106,11 +90,10 @@ async def check_channels(update, context):
 
 
         await update.effective_message.reply_text(
-            "وااای 🥺🌸 هنوز همه کانال‌های یوری رو عضو نشدی\n\n"
-            "برای استفاده از ملورینا اول این پنج کانال رو دنبال کن 💗",
+            "وااای 🥺🌸 هنوز همه کانال‌ها رو عضو نشدی\n"
+            "اول عضو شو بعد دوباره بزن 💗",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
-
 
         return False
 
@@ -119,9 +102,7 @@ async def check_channels(update, context):
 
 
 
-# شروع ربات
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
 
     if not await check_channels(update, context):
         return
@@ -129,20 +110,33 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
         f"سلاممم 🥺🌸\n"
-        f"من {BOT_NAME} هستم 💗\n"
-        f"خوش اومدی، بیا باهم حرف بزنیم 🧸",
+        f"من {BOT_NAME} هستم 💗",
         reply_markup=main_menu()
     )
 
 
 
-# چت با Gemini
+async def check_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    query = update.callback_query
+    await query.answer()
+
+
+    if await check_channels(update, context):
+
+        await query.edit_message_text(
+            "وااای خوش اومدییی 🥺🌸\n"
+            "حالا منوی ملورینا باز شد 💗"
+        )
+
+        await query.message.reply_text(
+            "انتخاب کن 🌸",
+            reply_markup=main_menu()
+        )
+
+
+
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-
-    if not await check_channels(update, context):
-        return
-
 
     text = update.message.text
 
@@ -150,10 +144,10 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     prompt = f"""
 {PERSONALITY}
 
-کاربر گفت:
+کاربر:
 {text}
 
-جواب ملورینا:
+ملورینا:
 """
 
 
@@ -166,57 +160,27 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
 
-        print(
-            "GEMINI ERROR:",
-            e
-        )
+        print("GEMINI ERROR:", repr(e))
 
         answer = (
-            "وااای 🥺🌸 یه مشکل کوچولو پیش اومد\n"
-            "دوباره امتحان کن 💗"
+            "وااای 🥺🌸"
+            " یه مشکل کوچولو توی جادوی من پیش اومد 💗"
         )
 
 
-    await update.message.reply_text(
-        answer
-    )
-
-
-
-# دکمه عضو شدم
-async def check_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-
-    query = update.callback_query
-
-    await query.answer()
-
-
-    if await check_channels(update, context):
-
-        await query.edit_message_text(
-            "وااای خوش اومدییی 🥺🌸\n"
-            "حالا می‌تونی با ملورینا حرف بزنی 💗"
-        )
+    await update.message.reply_text(answer)
 
 
 
 def main():
 
-
-    app = (
-        Application
-        .builder()
-        .token(TELEGRAM_TOKEN)
-        .build()
-    )
+    app = Application.builder().token(
+        TELEGRAM_TOKEN
+    ).build()
 
 
     app.add_handler(
-        CommandHandler(
-            "start",
-            start
-        )
+        CommandHandler("start", start)
     )
 
 
@@ -236,9 +200,7 @@ def main():
     )
 
 
-    print(
-        "🌸 Melorina is running"
-    )
+    print("🌸 Melorina running")
 
 
     app.run_polling()
