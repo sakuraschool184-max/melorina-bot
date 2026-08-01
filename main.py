@@ -53,11 +53,11 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
 
-        print("GEMINI ERROR:", e)
+        print("FULL GEMINI ERROR:", repr(e))
 
         answer = (
-            "وای 🥺🌸"
-            " یه مشکل کوچولو پیش اومد"
+            "وااای 🥺🌸\n"
+            "یه مشکل کوچولو توی جادوی من پیش اومد 💗"
         )
 
 
@@ -90,7 +90,7 @@ def main():
     )
 
 
-    print("Melorina started 🌸")
+    print("🌸 Melorina is running")
 
     app.run_polling()
 
