@@ -1,3 +1,9 @@
-python-telegram-bot
+python-telegram-bot==20.7
 google-generativeai
 python-dotenv
+requests
+aiohttp
+urllib3
+certifi
+idna
+charset-normalizer
