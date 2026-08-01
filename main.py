@@ -9,11 +9,15 @@ from telegram.ext import (
     filters
 )
 
-from config import TELEGRAM_TOKEN, GEMINI_API_KEY
+import os
+
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 
 
 genai.configure(
-    api_key=GEMINI_API_KEY
+    api_key=GEMINI_KEY
 )
 
 
@@ -26,44 +30,47 @@ model = genai.GenerativeModel(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
-        "سلام 🌸 ملورینا آماده چته"
+        "سلاممم 🥺🌸\n"
+        "من ملورینا هستم 💗\n"
+        "بیا حرف بزنیم 🧸"
     )
 
 
 
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    user_text = update.message.text
+    text = update.message.text
 
 
     try:
 
-        response = model.generate_content(
-            user_text
+        result = model.generate_content(
+            text
         )
 
-
-        await update.message.reply_text(
-            response.text
-        )
+        answer = result.text
 
 
     except Exception as e:
 
-        print("GEMINI ERROR:")
-        print(repr(e))
+        print("GEMINI ERROR:", e)
 
-
-        await update.message.reply_text(
-            "مشکل از اتصال جمینای هست 🥺"
+        answer = (
+            "وای 🥺🌸"
+            " یه مشکل کوچولو پیش اومد"
         )
+
+
+    await update.message.reply_text(
+        answer
+    )
 
 
 
 def main():
 
     app = Application.builder().token(
-        TELEGRAM_TOKEN
+        BOT_TOKEN
     ).build()
 
 
@@ -83,7 +90,7 @@ def main():
     )
 
 
-    print("BOT RUNNING")
+    print("Melorina started 🌸")
 
     app.run_polling()
 
