@@ -14,7 +14,7 @@ from config import (
     GEMINI_API_KEY,
     BOT_NAME
 )
-
+from keyboards import main_menu, join_channels
 
 # اتصال به Gemini
 genai.configure(
